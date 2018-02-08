@@ -10,7 +10,6 @@ const controller = require('./../controllers');
 */
 router.post('/signup', (req, res, next) => {
     let { email, password, country, name } = req.body;
-
     controller.authController.userSignup({ email, password, country, name }, res);
 });
 

@@ -6,10 +6,10 @@ const express = require('express'),
     jsonWebToken = require('jsonwebtoken'),
     logger = require('morgan');
 
+
 const app = express(),
     config = require('./config/config'),
-    model = require('./models'),
-    routes = require('./routes')(app);
+    model = require('./models');
 
 app.use(logger('dev'));
 
@@ -17,4 +17,5 @@ mongoose.connect("mongodb://localhost/test");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+require('./routes')(app);
 module.exports = app;

@@ -4,17 +4,18 @@ const express = require('express'),
     router = express.Router(),
     jwt = require('jsonwebtoken'),
     User = require('./../models'),
-    appUtils = require('./../appUtils'),
+    appUtils = require('./../config/appUtils'),
     config = require('./../config/config');
 
 let userSignup = (req, res) => {
-    if (appUtils.hasEmptyProperties(req, User.userModel)) {
+    let keysRequired = ['email', 'password', 'country', 'name']
+    if (!appUtils.hasEmptyProperties(req, keysRequired)) {
         let user = new User.userModel(req);
         user.save((err, data) => {
             if (err) {
                 return res.json({ 'error': err });
             }
-            return res.json({ 'success': data });
+            return res.status(201).json({ 'success': data });
         });
     } else {
         return res.json({ 'error': 'Required fields are missing' });
