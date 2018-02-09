@@ -3,7 +3,8 @@ const STATUS_CODE = {
     'unAuthorized': 401,
     'notFound': 204,
     'error': 500
-}
+};
+
 
 module.exports = {
     STATUS_CODE

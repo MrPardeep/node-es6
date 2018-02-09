@@ -1,2 +1,3 @@
 # node-es6
-Todo
+
+Basic Nodejs app with es6 pattern containing todo API's list

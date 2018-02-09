@@ -1,8 +1,7 @@
-const express = require('express');
-const router = express.Router();
-const jwt = require('jsonwebtoken');
-const User = require('./../models');
-const config = require('./../config/config');
+"use strict";
+
+const express = require('express'),
+    router = express.Router();
 
 router.get('/users', (req, res) => {
     res.status(200).send(req.decode);
