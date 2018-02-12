@@ -1,13 +1,13 @@
 "use strict";
 
 const jwt = require('jsonwebtoken'),
-    config = require('./../config/config');
+    config = require('./../config');
 
 let checkValidToken = (req, res, next) => {
     let token = req.body.token || req.headers['token'] || req.query.token;
 
     if (token) {
-        jwt.verify(token, config.JWT_SECRET, (err, decode) => {
+        jwt.verify(token, config.config.JWT_SECRET, (err, decode) => {
             if (err) {
                 return res.json({ "error": err });
             }
@@ -15,8 +15,8 @@ let checkValidToken = (req, res, next) => {
             next();
         });
     } else {
-        return res.status(403).send({
-            "error": 'User is not authorized'
+        return res.status(config.constants.STATUS_CODE.unAuthorized).send({
+            "error": config.constants.RESPONSE_MSGS.UNAUTHORIZED
         })
     }
 }

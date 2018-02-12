@@ -2,27 +2,37 @@
 
 const express = require('express'),
     router = express.Router(),
-    jwt = require('jsonwebtoken'),
-    bcrypt = require('bcrypt');
+    Promise = require('bluebird'),
+    jwt = require('jsonwebtoken');
 
 const User = require('./../models'),
-    appUtils = require('./../config/appUtils'),
-    config = require('./../config/config'),
-    saltRounds = 10;
+    dao = require('./../dao'),
+    config = require('./../config');
 
 let userSignup = (req, res) => {
-    let keysRequired = ['email', 'password', 'dob', 'firstname', 'lastname']
-    if (!appUtils.hasEmptyProperties(req, keysRequired)) {
-        _passwordEncryption(req);
-        let user = new User.userModel(req);
-        user.save((err, data) => {
-            if (err) {
-                return res.json({ 'error': err });
-            }
-            return res.status(201).json({ 'data': data });
-        });
+    let keysRequired = ['email', 'password', 'dob', 'firstname', 'lastname'],
+        checkForEmptyProps = config.appUtils.hasEmptyProperties(req, keysRequired),
+        checkForValidEmail = req.email ? config.appUtils.isValidEmail(req.email) : null;
+
+    if (!checkForEmptyProps) {
+        if (checkForValidEmail) {
+            let user = new User.userModel(req);
+            return dao.basicDao.findEntry(User.userModel, { email: req.email }).then(userArray => {
+                if (userArray.length) {
+                    return Promise.reject(config.constants.RESPONSE_MSGS.EMAIL_EXIST);
+                }
+
+                return config.appUtils.passwordEncryption(user).then(result => {
+                    return dao.basicDao.saveEntry(user).then(response => {
+                        return { 'data': response };
+                    });
+                });
+            })
+        } else {
+            return Promise.reject(config.constants.RESPONSE_MSGS.FIELDS_MISSING);
+        }
     } else {
-        return res.json({ 'error': 'Required fields are missing' });
+        return Promise.reject(config.constants.RESPONSE_MSGS.FIELDS_MISSING);
     }
 }
 
@@ -34,7 +44,7 @@ let login = (req, res) => {
         if (!user) {
             return res.status(404).json({ 'message': 'User not found!' });
         }
-        let token = jwt.sign(user, config.JWT_SECRET, {
+        let token = jwt.sign(user, config.config.JWT_SECRET, {
             expiresIn: 1440 // expires in 1 hour
         });
         res.json({ error: false, token: token });
@@ -45,14 +55,3 @@ module.exports = {
     userSignup,
     login
 };
-
-let _passwordEncryption = (req) => {
-    console.log(req.password);
-    let btoaPassword = atob(req.password);
-    bcrypt.genSalt(saltRounds, (err, salt) => {
-        bcrypt.hash(btoaPassword, salt, (err, hash) => {
-            req.password = hash;
-            return req;
-        });
-    });
-}
