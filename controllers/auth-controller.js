@@ -3,13 +3,17 @@
 const express = require('express'),
     router = express.Router(),
     jwt = require('jsonwebtoken'),
-    User = require('./../models'),
+    bcrypt = require('bcrypt');
+
+const User = require('./../models'),
     appUtils = require('./../config/appUtils'),
-    config = require('./../config/config');
+    config = require('./../config/config'),
+    saltRounds = 10;
 
 let userSignup = (req, res) => {
     let keysRequired = ['email', 'password', 'dob', 'firstname', 'lastname']
     if (!appUtils.hasEmptyProperties(req, keysRequired)) {
+        _passwordEncryption(req);
         let user = new User.userModel(req);
         user.save((err, data) => {
             if (err) {
@@ -41,3 +45,14 @@ module.exports = {
     userSignup,
     login
 };
+
+let _passwordEncryption = (req) => {
+    console.log(req.password);
+    let btoaPassword = atob(req.password);
+    bcrypt.genSalt(saltRounds, (err, salt) => {
+        bcrypt.hash(btoaPassword, salt, (err, hash) => {
+            req.password = hash;
+            return req;
+        });
+    });
+}
