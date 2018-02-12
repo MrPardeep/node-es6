@@ -11,8 +11,8 @@ const controller = require('./../controllers');
     Requested Params : { email, password, country, name }
 */
 router.post('/signup', (req, res, next) => {
-    let { email, password, country, name } = req.body;
-    controller.authController.userSignup({ email, password, country, name }, res);
+    let { email, password, country, firstname, lastname, dob } = req.body;
+    controller.authController.userSignup({ email, password, country, firstname, lastname, dob }, res);
 });
 
 /* 

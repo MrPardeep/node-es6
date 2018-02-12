@@ -8,14 +8,14 @@ const express = require('express'),
     config = require('./../config/config');
 
 let userSignup = (req, res) => {
-    let keysRequired = ['email', 'password', 'country', 'name']
+    let keysRequired = ['email', 'password', 'dob', 'firstname', 'lastname']
     if (!appUtils.hasEmptyProperties(req, keysRequired)) {
         let user = new User.userModel(req);
         user.save((err, data) => {
             if (err) {
                 return res.json({ 'error': err });
             }
-            return res.status(201).json({ 'success': data });
+            return res.status(201).json({ 'data': data });
         });
     } else {
         return res.json({ 'error': 'Required fields are missing' });

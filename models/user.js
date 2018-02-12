@@ -6,8 +6,10 @@ const mongoose = require('mongoose'),
 const User = mongoose.model('User', new Schema({
     email: { type: String, required: true },
     password: { type: String, required: true },
-    name: { type: String, required: false, default: 'User' },
-    country: { type: String, required: false, default: 'india' }
+    firstname: { type: String, required: true },
+    lastname: { type: String, required: true },
+    country: { type: String, required: false, default: 'india' },
+    dob: { type: String, required: true }
 }));
 
 module.exports = User;
