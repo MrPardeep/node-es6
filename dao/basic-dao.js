@@ -13,7 +13,16 @@ let findEntry = (model, query) => {
     })
 }
 
+let findOneEntry = (model, query) => {
+    return model.find(query).then((result) => {
+        return result;
+    }).catch(error => {
+        return error;
+    })
+}
+
 module.exports = {
     saveEntry,
-    findEntry
+    findEntry,
+    findOneEntry
 }

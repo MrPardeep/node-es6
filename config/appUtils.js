@@ -47,6 +47,14 @@ let passwordEncryption = (req) => {
     });
 }
 
+let passwordCompare = (req) => {
+    return new Promise((resolve, reject) => {
+        bcrypt.compare(req.password, hash).then((res) => {
+            // res == false
+        });
+    })
+}
+
 module.exports = {
     hasEmptyProperties,
     trimValues,

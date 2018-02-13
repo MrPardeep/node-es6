@@ -13,7 +13,7 @@ const app = express(),
 
 app.use(logger('dev'));
 
-mongoose.connect(config.dbManager.DB_CONNECTION_KEY);
+mongoose.connect(config.dbManager.DB_CLOUD_KEY);
 app.use(bodyParser.json({ limit: '50MB' }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ dest: './media/' }).any());

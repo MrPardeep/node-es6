@@ -37,7 +37,9 @@ let userSignup = (req, res) => {
 }
 
 let login = (req, res) => {
-    User.userModel.findOne(req).lean().exec((err, user) => {
+    let dataTrim = config.appUtils.trimValues(req);
+    console.log(req, dataTrim);
+    User.userModel.findOne({ email: req.email }).lean().exec((err, user) => {
         if (err) {
             return res.json({ error: true });
         }
