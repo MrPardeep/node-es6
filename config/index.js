@@ -1,13 +1,15 @@
 "use strict";
 
 const config = require('./config'),
-    appUtils = require('./appUtils'),
+    appUtils = require('./app-utils'),
     constants = require('./constants'),
-    dbManager = require('./dbManager');
+    expressConfig = require('./express-config'),
+    dbManager = require('./db-manager');
 
 module.exports = {
     config,
     appUtils,
     constants,
+    expressConfig,
     dbManager
 }

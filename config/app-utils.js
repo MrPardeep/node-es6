@@ -31,7 +31,7 @@ let isValidEmail = (email) => {
     return new RegExp(pattern).test(email);
 }
 
-/* For password decryption */
+/* For password decryption using bcrypt */
 let passwordEncryption = (req) => {
     let btoaPassword = atob(req.password);
     return new Promise((resolve, reject) => {
@@ -55,9 +55,24 @@ let passwordCompare = (req) => {
     })
 }
 
+/* Set Headers to request to avoid CORS error while API's hitting */
+let setCorsHeader = (res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.header("Access-Control-Allow-Credentials", true);
+    res.header("Access-Control-Allow-Methods", "POST,GET,PUT,DELETE,OPTIONS");
+    return res;
+}
+
+let getNodeEnv = () => {
+    return process.env.NODE_ENV;
+}
+
 module.exports = {
     hasEmptyProperties,
     trimValues,
     isValidEmail,
-    passwordEncryption
+    passwordEncryption,
+    setCorsHeader,
+    getNodeEnv
 }

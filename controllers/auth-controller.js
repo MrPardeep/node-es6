@@ -38,8 +38,8 @@ let userSignup = (req, res) => {
 
 let login = (req, res) => {
     let dataTrim = config.appUtils.trimValues(req);
-    console.log(req, dataTrim);
-    User.userModel.findOne({ email: req.email }).lean().exec((err, user) => {
+    console.log(req);
+    User.userModel.findOne(dataTrim).lean().exec((err, user) => {
         if (err) {
             return res.json({ error: true });
         }

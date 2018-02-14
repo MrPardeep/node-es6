@@ -13,7 +13,7 @@ const controller = require('./../controllers');
 */
 router.post('/signup', (req, res, next) => {
     let { email, password, country, firstname, lastname, dob } = req.body;
-    controller.authController.userSignup({ email, password, country, firstname, lastname, dob }, res)
+    controller.authController.userSignup({ email, password, country, firstname, lastname, dob })
         .then(result => {
             return res.send(result);
         }).catch(err => {

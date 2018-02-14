@@ -1,31 +1,24 @@
 "use strict";
 
 const express = require('express'),
-    bodyParser = require('body-parser'),
-    mongoose = require('mongoose'),
-    multer = require('multer'),
-    cors = require('cors'),
-    logger = require('morgan');
-
+    mongoose = require('mongoose');
 
 const app = express(),
-    config = require('./config'),
-    model = require('./models');
+    config = require('./config');
 
-app.use(logger('dev'));
+/* let env = process.env.NODE_ENV;
+require('./config/env'); */
 
-mongoose.connect(config.dbManager.DB_CLOUD_KEY);
-app.use(bodyParser.json({ limit: '50MB' }));
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(multer({ dest: './media/' }).any());
-app.use(express.static('media'));
+mongoose.connect(config.dbManager.DB_CONNECTION_KEY);
 
-// app.use(cors());
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+/* config.dbManager.connectDB(abc, (error, result) => {
+    if (error) {
+        console.log(error, 'error connecting to DB');
+        return;
+    }
+}) */
+
+require('./config/express-config')(app);
 require('./routes')(app);
 
 module.exports = app;

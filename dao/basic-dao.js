@@ -6,19 +6,11 @@ let saveEntry = (model) => {
 }
 
 let findEntry = (model, query) => {
-    return model.find(query).then((result) => {
-        return result;
-    }).catch(error => {
-        return error;
-    })
+    return model.find(query);
 }
 
 let findOneEntry = (model, query) => {
-    return model.find(query).then((result) => {
-        return result;
-    }).catch(error => {
-        return error;
-    })
+    return model.find(query);
 }
 
 module.exports = {
