@@ -11,7 +11,7 @@ let hasEmptyProperties = (obj, props) => {
 
     obj = trimValues(obj);
     for (let property of props) {
-        hasEmptyProps = hasEmptyProps || !obj[property].trim();
+        hasEmptyProps = hasEmptyProps || !obj[property];
     }
 
     return hasEmptyProps;
@@ -20,7 +20,7 @@ let hasEmptyProperties = (obj, props) => {
 /* To Trim all params of request before any DB action */
 let trimValues = (obj) => {
     for (let key in obj) {
-        obj[key] = obj[key].trim();
+        obj[key] = obj[key] && obj[key].trim();
     }
     return obj;
 }
@@ -47,12 +47,10 @@ let passwordEncryption = (req) => {
     });
 }
 
-let passwordCompare = (req) => {
-    return new Promise((resolve, reject) => {
-        bcrypt.compare(req.password, hash).then((res) => {
-            // res == false
-        });
-    })
+let passwordCompare = (userPassword, dbPassword) => {
+    return bcrypt.compare(userPassword, dbPassword).then((res) => {
+        return res;
+    });
 }
 
 /* Set Headers to request to avoid CORS error while API's hitting */
@@ -73,6 +71,7 @@ module.exports = {
     trimValues,
     isValidEmail,
     passwordEncryption,
+    passwordCompare,
     setCorsHeader,
     getNodeEnv
 }

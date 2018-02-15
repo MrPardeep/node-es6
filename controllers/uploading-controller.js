@@ -1,6 +1,6 @@
 "use strict";
 
-const gm = require('gm'),
+const gm = require('gm').subClass({ imageMagick: true }),
     path = require('path');
 
 let imageUploading = (req, res) => {
@@ -8,6 +8,7 @@ let imageUploading = (req, res) => {
     console.log(pathImage)
 
     let { filename } = req.files[0];
+
     res.send(201, { filename, pathImage });
 }
 
