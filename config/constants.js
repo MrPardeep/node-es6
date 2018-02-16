@@ -10,8 +10,8 @@ const ERROR_MESSAGES = {
 }
 
 const EMAIL_INFO = {
-    USERNAME: 'pardeep.wildnet@gmail.com',
-    PASSWORD: 'innotical123'
+    USERNAME: 'door.wildnet@gmail.com',
+    PASSWORD: 'wildnet@123'
 }
 
 const RESPONSE_MSGS = {
@@ -20,7 +20,9 @@ const RESPONSE_MSGS = {
     INVALID_EMAIL: 'Email ID you entered is invalid',
     UNAUTHORIZED: 'User is not authorized',
     USER_NOT_FOUND: 'User not found',
-    SIGNUP_SUCCESS: 'User sign up successfull'
+    SIGNUP_SUCCESS: 'User sign up successfull',
+    FORGOT_PWD_SUCCESS: 'Please check your email for reset password Link attached.',
+    CHANGE_PWD_SUCCESS: 'Password has been changed successfully !'
 }
 
 const SALT_ROUNDS = 5;

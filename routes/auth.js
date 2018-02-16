@@ -11,14 +11,15 @@ const controller = require('./../controllers');
     Requested URL : localhost:3000/auth/signup
     Requested Params : { email, password, country, firstname, lastname, dob }
 */
-router.post('/signup', (req, res, next) => {
+router.post('/signup', async(req, res, next) => {
     let { email, password, country, firstname, lastname, dob } = req.body;
-    controller.authController.userSignup({ email, password, country, firstname, lastname, dob })
-        .then(result => {
-            return res.send(result);
-        }).catch(err => {
-            return res.send({ 'error': err });
-        })
+
+    try {
+        let response = await controller.authController.userSignup({ email, password, country, firstname, lastname, dob });
+        return res.send(response);
+    } catch (error) {
+        return res.send({ error: error });
+    }
 });
 
 /* 
@@ -26,15 +27,15 @@ router.post('/signup', (req, res, next) => {
     Requested URL : localhost:3000/auth/authenticate
     Requested Params : { email, password }
 */
-router.post('/login', (req, res) => {
+router.post('/login', async(req, res) => {
     let { email, password } = req.body;
 
-    controller.authController.login({ email, password })
-        .then(result => {
-            return res.send(result);
-        }).catch(err => {
-            return res.send({ "error": err });
-        })
+    try {
+        let response = await controller.authController.login({ email, password });
+        return res.send(response);
+    } catch (error) {
+        return res.send({ error: error });
+    }
 });
 
 /* 
@@ -42,15 +43,14 @@ router.post('/login', (req, res) => {
     Requested URL : localhost:3000/auth/forgot-password
     Requested Params : { email }
 */
-router.post('/forgot-password', (req, res) => {
+router.post('/forgot-password', async(req, res) => {
     let { email } = req.body;
-
-    controller.authController.forgotPassword({ email })
-        .then(result => {
-            return res.send(result);
-        }).catch(err => {
-            return res.send({ "error": err });
-        })
+    try {
+        let response = await controller.authController.forgotPassword({ email });
+        return res.send(response);
+    } catch (error) {
+        return res.send({ error: error });
+    }
 });
 
 /* 
@@ -58,15 +58,15 @@ router.post('/forgot-password', (req, res) => {
     Requested URL : localhost:3000/auth/reset-password
     Requested Params : { password, token }
 */
-router.post('/reset-password', (req, res) => {
+router.post('/reset-password', async(req, res) => {
     let { password, token } = req.body;
 
-    controller.authController.resetPassword({ password, token })
-        .then(result => {
-            return res.send(result);
-        }).catch(err => {
-            return res.send({ "error": err });
-        })
+    try {
+        let response = await controller.authController.resetPassword({ password, token });
+        return res.send(response);
+    } catch (error) {
+        return res.send({ error: error });
+    }
 });
 
 module.exports = router;

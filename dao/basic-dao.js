@@ -4,8 +4,9 @@ let saveEntry = (model) => {
     return model.save();
 }
 
-let findEntry = (model, query) => {
-    return model.find(query);
+let findEntry = async(model, query) => {
+    let findEntry = await model.find(query);
+    return findEntry;
 }
 
 let findOneEntry = (model, query) => {

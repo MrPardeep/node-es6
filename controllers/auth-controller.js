@@ -11,98 +11,120 @@ const User = require('./../models'),
     emailer = require('../client/email/index'),
     config = require('./../config');
 
-let userSignup = (req, res) => {
+let userSignup = async(req, res) => {
     let keysRequired = ['email', 'password'],
         checkForEmptyProps = config.appUtils.hasEmptyProperties(req, keysRequired),
         checkForValidEmail = req.email ? config.appUtils.isValidEmail(req.email) : null;
 
     if (checkForEmptyProps) {
-        return Promise.reject(config.constants.RESPONSE_MSGS.FIELDS_MISSING);
+        return { error: config.constants.RESPONSE_MSGS.FIELDS_MISSING };
     }
 
     if (!checkForValidEmail) {
-        return Promise.reject(config.constants.RESPONSE_MSGS.INVALID_EMAIL);
+        return { error: config.constants.RESPONSE_MSGS.INVALID_EMAIL };
     }
 
     let user = new User.userModel(req);
-    return dao.basicDao.findEntry(User.userModel, { email: req.email }).then(userArray => {
-        if (userArray.length) {
-            return Promise.reject(config.constants.RESPONSE_MSGS.EMAIL_EXIST);
-        }
-
-        return config.appUtils.passwordEncryption(user).then(result => {
-            return dao.basicDao.saveEntry(user).then(response => {
+    let findUser = await dao.basicDao.findEntry(User.userModel, { email: req.email })
+    if (!findUser.length) {
+        let passwordEncryption = await config.appUtils.passwordEncryption(user)
+        if (passwordEncryption) {
+            let saveIntoDB = await dao.basicDao.saveEntry(user)
+            if (saveIntoDB) {
                 return { 'result': config.constants.RESPONSE_MSGS.SIGNUP_SUCCESS };
-            });
-        });
-    })
+            }
+        }
+    } else {
+        return { error: config.constants.RESPONSE_MSGS.EMAIL_EXIST };
+    }
 }
 
-let login = (req, res) => {
+let login = async(req, res) => {
     let keysRequired = ['email', 'password'],
-        checkForEmptyProps = config.appUtils.hasEmptyProperties(req, keysRequired),
-        dataTrim = config.appUtils.trimValues(req);
+        checkForEmptyProps = config.appUtils.hasEmptyProperties(req, keysRequired);
 
     if (checkForEmptyProps) {
-        return Promise.reject(config.constants.RESPONSE_MSGS.FIELDS_MISSING);
+        return { error: config.constants.RESPONSE_MSGS.FIELDS_MISSING };
     }
 
-    return User.userModel.findOne({ email: dataTrim.email }).then((user, err) => {
-        if (err) {
-            return Promise.reject(config.constants.ERROR_MESSAGES.INTERNAL_SERVER);
-        }
+    let isValidEmail = await config.appUtils.isValidEmail(req.email.trim());
+    if (!isValidEmail) {
+        return { error: config.constants.RESPONSE_MSGS.INVALID_EMAIL };
+    }
 
-        if (!user) {
-            return Promise.reject(config.constants.RESPONSE_MSGS.USER_NOT_FOUND);
+    let findUser = await User.userModel.findOne({ email: req.email.trim() });
+    if (findUser) {
+        let passwordCompare = config.appUtils.passwordCompare(req.password, findUser.password)
+        if (passwordCompare) {
+            let token = jwt.sign({ email: findUser.email, firstname: findUser.firstname }, config.config.JWT_SECRET, { expiresIn: '1h' });
+            return { error: false, token: token };
+        } else {
+            return { error: config.constants.RESPONSE_MSGS.UNAUTHORIZED }
         }
-
-        return config.appUtils.passwordCompare(req.password, user.password).then(result => {
-            if (result) {
-                let token = jwt.sign(user, config.config.JWT_SECRET, {
-                    expiresIn: 1440 // expires in 1 hour
-                });
-                return { error: false, token: token };
-            }
-            return Promise.reject(config.constants.RESPONSE_MSGS.UNAUTHORIZED);
-        });
-    });
+    } else {
+        return { error: config.constants.RESPONSE_MSGS.USER_NOT_FOUND }
+    }
 }
 
-let forgotPassword = (req, res, next) => {
+let forgotPassword = async(req, res, next) => {
     if (!req.email) {
-        return Promise.reject(config.constants.RESPONSE_MSGS.FIELDS_MISSING)
+        return { error: config.constants.RESPONSE_MSGS.FIELDS_MISSING }
     }
 
-    let validateEmail = config.appUtils.isValidEmail(req.email);
+    let validateEmail = config.appUtils.isValidEmail(req.email.trim());
 
     if (!validateEmail) {
-        return Promise.reject(config.constants.RESPONSE_MSGS.INVALID_EMAIL)
+        return { error: config.constants.RESPONSE_MSGS.INVALID_EMAIL }
     }
+    try {
+        let findUser = await User.userModel.findOne({ email: req.email.trim() })
+        if (findUser) {
+            let radomString = await crypto.randomBytes(10);
+            if (radomString) {
+                let emailerOptions = {
+                    to: req.email,
+                    token: radomString.toString('hex')
+                }
+                findUser.resetPasswordExpires = Date.now() + 3600000;
+                findUser.resetPasswordToken = emailerOptions.token;
 
-    return User.userModel.findOne({ email: req.email }).then((res) => {
-        if (res) {
-            /* return new Promise((resolve, reject) => {
-                crypto.randomBytes(10, (ex, buf) => {
-                    let token = buf.toString('hex');
-                    console.log(token);
-                    return resolve({ data: 'email valid and found', token: token });
-                });
-            }) */
-            emailer.sendEmail(req.email);
-            return { data: 'email valid and found' }
+                let userModelSave = await findUser.save();
+                let emailSentConfirmation = await emailer.sendEmail(emailerOptions);
+                if (emailSentConfirmation && userModelSave)
+                    return { result: config.constants.RESPONSE_MSGS.FORGOT_PWD_SUCCESS }
+            }
         } else
             return { error: config.constants.USER_NOT_FOUND };
-    })
+    } catch (error) {
+        return { error: error };
+    }
 }
 
-let resetPassword = (req, res, next) => {
+let resetPassword = async(req, res, next) => {
     if (!req.password && !req.token) {
-        return Promise.reject(config.constants.RESPONSE_MSGS.FIELDS_MISSING)
+        return { error: config.constants.RESPONSE_MSGS.FIELDS_MISSING }
     }
 
-    User.userModel.findOne({ resetToken: req.token }).then(res => {
+    try {
+        let getUser = await dao.basicDao.findEntry(User.userModel, { resetPasswordToken: req.token });
+        if (getUser.length) {
+            let encryptedPassword = await config.appUtils.passwordEncryption(req);
+            if (encryptedPassword) {
+                getUser[0].password = encryptedPassword.password;
+                getUser[0].resetPasswordExpires = null;
+                getUser[0].resetPasswordToken = null;
 
-    })
+                let updatePassword = await getUser[0].save();
+                if (updatePassword) {
+                    return { result: config.constants.RESPONSE_MSGS.CHANGE_PWD_SUCCESS }
+                }
+            }
+        } else {
+            return { error: config.constants.RESPONSE_MSGS.USER_NOT_FOUND }
+        }
+    } catch (err) {
+        return { error: err }
+    }
 }
 
 module.exports = {

@@ -32,25 +32,27 @@ let isValidEmail = (email) => {
 }
 
 /* For password decryption using bcrypt */
-let passwordEncryption = (req) => {
+let passwordEncryption = async(req) => {
     let btoaPassword = atob(req.password);
-    return new Promise((resolve, reject) => {
-        bcrypt.genSalt(constants.SALT_ROUNDS, (err, salt) => {
-            bcrypt.hash(btoaPassword, salt, (err, hash) => {
-                if (err) {
-                    return reject(err);
-                }
-                req.password = hash;
-                return resolve(req);
-            });
-        });
-    });
+    try {
+        let genSalt = await bcrypt.genSalt(constants.SALT_ROUNDS);
+        if (genSalt) {
+            let hashPassword = await bcrypt.hash(btoaPassword, genSalt);
+            req.password = hashPassword;
+            return req;
+        }
+    } catch (error) {
+        return { err: error }
+    }
 }
 
-let passwordCompare = (userPassword, dbPassword) => {
-    return bcrypt.compare(userPassword, dbPassword).then((res) => {
-        return res;
-    });
+/* Method to compare plain password with DB encrypted password */
+let passwordCompare = async(userPassword, dbPassword) => {
+    let btoaPassword = atob(userPassword);
+    let comparePassword = await bcrypt.compare(btoaPassword, dbPassword)
+    if (comparePassword) {
+        return comparePassword;
+    }
 }
 
 /* Set Headers to request to avoid CORS error while API's hitting */
