@@ -12,8 +12,8 @@ const ERROR_MESSAGES = {
 }
 
 const EMAIL_INFO = {
-    USERNAME: 'door.wildnet@gmail.com',
-    PASSWORD: 'wildnet@123'
+    USERNAME: '----',
+    PASSWORD: '----'
 }
 
 const RESPONSE_MSGS = {
