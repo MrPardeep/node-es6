@@ -4,23 +4,82 @@ const express = require('express'),
     Promise = require('bluebird'),
     router = express.Router();
 
-const controller = require('./../controllers');
+const controller = require('./../controllers'),
+    constants = require('./../config/constants'),
+    middleware = require('./../middlewares');
 
 /* 
     User Signup API
     Requested URL : localhost:3000/auth/signup
-    Requested Params : { email, password, country, firstname, lastname, dob }
+    Requested Params : { email, password, country, firstname, lastname, dob, role, phone }
 */
 router.post('/signup', async(req, res, next) => {
-    let { email, password, country, firstname, lastname, dob } = req.body;
+    let { email, password, country, firstname, lastname, dob, role, phone } = req.body;
 
     try {
-        let response = await controller.authController.userSignup({ email, password, country, firstname, lastname, dob });
+        let response = await controller.authController.userSignup({ email, password, country, firstname, lastname, dob, role, phone });
         return res.send(response);
     } catch (error) {
         return res.send({ error: error });
     }
 });
+
+/* 
+    User Signup API
+    Requested URL : localhost:3000/auth/add-user
+    Requested Params : { email, password, country, name, dob, role, phone, status}
+*/
+router.post('/add-user', middleware.checkAuth.checkValidToken, async(req, res, next) => {
+    let { email, password, country, name, dob, role, phone, status } = req.body;
+
+    try {
+        let response = await controller.authController.userSignup({ email, password, country, name, dob, role, phone, status });
+        return res.send(response);
+    } catch (error) {
+        return res.status(constants.STATUS_CODE.error).send({ error: error });
+    }
+});
+
+/* 
+    Get user list API
+    Requested URL : localhost:3000/auth/user
+*/
+router.get('/user', middleware.checkAuth.checkValidToken, async(req, res, next) => {
+    try {
+        let response = await controller.authController.getUserList();
+        return res.send(response);
+    } catch (error) {
+        return res.status(constants.STATUS_CODE.error).send({ error: error });
+    }
+});
+
+/* 
+    Get single user API
+    Requested URL : localhost:3000/auth/user/:id
+*/
+router.get('/user/:id', middleware.checkAuth.checkValidToken, async(req, res, next) => {
+    try {
+        let response = await controller.authController.getUser(req);
+        return res.send(response);
+    } catch (error) {
+        return res.status(constants.STATUS_CODE.error).send({ error: error });
+    }
+});
+
+
+/* 
+    Get Manger list API
+    Requested URL : localhost:3000/auth/manager
+*/
+router.get('/manager', middleware.checkAuth.checkValidToken, async(req, res, next) => {
+    try {
+        let response = await controller.authController.getManagerList(req);
+        return res.send(response);
+    } catch (error) {
+        return res.status(constants.STATUS_CODE.error).send({ error: error });
+    }
+});
+
 
 /* 
     User Login API
@@ -47,6 +106,22 @@ router.post('/forgot-password', async(req, res) => {
     let { email } = req.body;
     try {
         let response = await controller.authController.forgotPassword({ email });
+        return res.send(response);
+    } catch (error) {
+        return res.send({ error: error });
+    }
+});
+
+/* 
+    User Update profile API
+    Requested URL : localhost:3000/auth/profile-update
+    Requested Params : { email, password, country, firstname, lastname, dob }
+*/
+router.post('/profile-update', middleware.checkAuth.checkValidToken, async(req, res) => {
+    let { email, country, firstname, lastname, dob } = req.body;
+
+    try {
+        let response = await controller.authController.updateProfile({ email, country, firstname, lastname, dob });
         return res.send(response);
     } catch (error) {
         return res.send({ error: error });

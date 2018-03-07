@@ -58,7 +58,7 @@ let passwordCompare = async(userPassword, dbPassword) => {
 /* Set Headers to request to avoid CORS error while API's hitting */
 let setCorsHeader = (res) => {
     res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, token");
     res.header("Access-Control-Allow-Credentials", true);
     res.header("Access-Control-Allow-Methods", "POST,GET,PUT,DELETE,OPTIONS");
     return res;

@@ -1,6 +1,6 @@
 "use strict";
 
-const checkAuth = require('./check-auth');
+import checkAuth from './check-auth';
 
 module.exports = {
     checkAuth

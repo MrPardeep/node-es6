@@ -1,7 +1,9 @@
 "use strict";
 
 import config from './../config';
-import saveArticles from "./../models/articles";
+import articlesModel from "./../models/articles";
+/* const config = require("./../config"),
+    articlesModel = require("./../models/articles"); */
 
 let saveArticles = async(req, res, next) => {
     const keysRequired = ['title', 'author'],
@@ -11,14 +13,13 @@ let saveArticles = async(req, res, next) => {
         return { error: config.constants.RESPONSE_MSGS.FIELDS_MISSING };
     }
     try {
-        let articleSave = await saveArticles.save();
+        let articleSave = await articlesModel.save();
         if (articleSave) {
             return { result: 'article saved' };
         }
     } catch (error) {
         return { error: error };
     }
-
 }
 
 module.exports = {

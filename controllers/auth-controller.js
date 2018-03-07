@@ -8,6 +8,7 @@ const express = require('express'),
 
 const User = require('./../models'),
     dao = require('./../dao'),
+    responseHndlr = require('./../config/resHandler'),
     emailer = require('../client/email/index'),
     config = require('./../config');
 
@@ -17,11 +18,11 @@ let userSignup = async(req, res) => {
         checkForValidEmail = req.email ? config.appUtils.isValidEmail(req.email) : null;
 
     if (checkForEmptyProps) {
-        return { error: config.constants.RESPONSE_MSGS.FIELDS_MISSING };
+        return responseHndlr.getPropertyMissingMsg();
     }
 
     if (!checkForValidEmail) {
-        return { error: config.constants.RESPONSE_MSGS.INVALID_EMAIL };
+        return responseHndlr.getInvalidEmailMsg();
     }
 
     let user = new User.userModel(req);
@@ -31,11 +32,11 @@ let userSignup = async(req, res) => {
         if (passwordEncryption) {
             let saveIntoDB = await dao.basicDao.saveEntry(user)
             if (saveIntoDB) {
-                return { 'result': config.constants.RESPONSE_MSGS.SIGNUP_SUCCESS };
+                return { status: config.constants.STATUS_CODE.created, message: config.constants.RESPONSE_MSGS.SIGNUP_SUCCESS };
             }
         }
     } else {
-        return { error: config.constants.RESPONSE_MSGS.EMAIL_EXIST };
+        return { status: config.constants.STATUS_CODE.error, message: config.constants.RESPONSE_MSGS.EMAIL_EXIST };
     }
 }
 
@@ -44,37 +45,44 @@ let login = async(req, res) => {
         checkForEmptyProps = config.appUtils.hasEmptyProperties(req, keysRequired);
 
     if (checkForEmptyProps) {
-        return { error: config.constants.RESPONSE_MSGS.FIELDS_MISSING };
+        return responseHndlr.getPropertyMissingMsg();
     }
 
     let isValidEmail = await config.appUtils.isValidEmail(req.email.trim());
     if (!isValidEmail) {
-        return { error: config.constants.RESPONSE_MSGS.INVALID_EMAIL };
+        return responseHndlr.getInvalidEmailMsg();
     }
 
-    let findUser = await User.userModel.findOne({ email: req.email.trim() });
-    if (findUser) {
-        let passwordCompare = config.appUtils.passwordCompare(req.password, findUser.password)
+    let userData = await User.userModel.findOne({ email: req.email.trim() });
+    if (userData) {
+        let passwordCompare = await config.appUtils.passwordCompare(req.password, userData.password)
         if (passwordCompare) {
-            let token = jwt.sign({ email: findUser.email, firstname: findUser.firstname }, config.config.JWT_SECRET, { expiresIn: '1h' });
-            return { error: false, token: token };
+            let token = jwt.sign({ email: userData.email, firstname: userData.firstname }, config.config.JWT_SECRET, { expiresIn: '1h' });
+            let userDetail = {
+                email: userData.email || null,
+                firstname: userData.firstname || null,
+                name: userData.name || null,
+                lastname: userData.lastname || null,
+                role: userData.role || null
+            }
+            return { status: config.constants.STATUS_CODE.success, token: token, user: userDetail };
         } else {
-            return { error: config.constants.RESPONSE_MSGS.UNAUTHORIZED }
+            return { status: config.constants.STATUS_CODE.error, message: config.constants.RESPONSE_MSGS.UNAUTHORIZED }
         }
     } else {
-        return { error: config.constants.RESPONSE_MSGS.USER_NOT_FOUND }
+        return { status: config.constants.STATUS_CODE.server_error, message: config.constants.RESPONSE_MSGS.USER_NOT_FOUND }
     }
 }
 
 let forgotPassword = async(req, res, next) => {
     if (!req.email) {
-        return { error: config.constants.RESPONSE_MSGS.FIELDS_MISSING }
+        return responseHndlr.getPropertyMissingMsg();
     }
 
     let validateEmail = config.appUtils.isValidEmail(req.email.trim());
 
     if (!validateEmail) {
-        return { error: config.constants.RESPONSE_MSGS.INVALID_EMAIL }
+        return responseHndlr.getInvalidEmailMsg();
     }
     try {
         let findUser = await User.userModel.findOne({ email: req.email.trim() })
@@ -91,12 +99,50 @@ let forgotPassword = async(req, res, next) => {
                 let userModelSave = await findUser.save();
                 let emailSentConfirmation = await emailer.sendEmail(emailerOptions);
                 if (emailSentConfirmation && userModelSave)
-                    return { result: config.constants.RESPONSE_MSGS.FORGOT_PWD_SUCCESS }
+                    return { message: config.constants.RESPONSE_MSGS.FORGOT_PWD_SUCCESS }
             }
         } else
-            return { error: config.constants.USER_NOT_FOUND };
+            return { message: config.constants.USER_NOT_FOUND };
     } catch (error) {
-        return { error: error };
+        return responseHndlr.getServerErrorMsg();
+    }
+}
+
+let updateProfile = async(req, res, next) => {
+    let keysRequired = ['email', 'password'],
+        hasEmptyProperties = config.appUtils.hasEmptyProperties(req, keysRequired);
+
+    if (!hasEmptyProperties) {
+        return responseHndlr.getPropertyMissingMsg();
+    }
+
+    let validateEmail = config.appUtils.isValidEmail(req.email.trim());
+    if (!validateEmail) {
+        return responseHndlr.getInvalidEmailMsg();
+    }
+
+    try {
+        let isUserExist = await dao.basicDao.findEntry(User.userModel, { email: req.email.trim() });
+        if (isUserExist.length) {
+            let table = User.userModel,
+                where = { _id: isUserExist[0].id },
+                value = {
+                    email: req.email.trim(),
+                    country: req.country || isUserExist[0].country,
+                    firstname: req.firstname || isUserExist[0].firstname,
+                    lastname: req.lastname || isUserExist[0].lastname,
+                    dob: req.dob || isUserExist[0].dob
+                }
+
+            let isUpdated = await dao.basicDao.update(table, where, value);
+            if (isUpdated) {
+                return { result: config.constants.RESPONSE_MSGS.USER_UPDATED };
+            }
+        } else {
+            return { error: config.constants.RESPONSE_MSGS.USER_NOT_FOUND }
+        }
+    } catch (err) {
+        return responseHndlr.getServerErrorMsg();
     }
 }
 
@@ -106,15 +152,15 @@ let resetPassword = async(req, res, next) => {
     }
 
     try {
-        let getUser = await dao.basicDao.findEntry(User.userModel, { resetPasswordToken: req.token });
-        if (getUser.length) {
+        let userData = await dao.basicDao.findEntry(User.userModel, { resetPasswordToken: req.token });
+        if (userData.length) {
             let encryptedPassword = await config.appUtils.passwordEncryption(req);
             if (encryptedPassword) {
-                getUser[0].password = encryptedPassword.password;
-                getUser[0].resetPasswordExpires = null;
-                getUser[0].resetPasswordToken = null;
+                userData[0].password = encryptedPassword.password;
+                userData[0].resetPasswordExpires = null;
+                userData[0].resetPasswordToken = null;
 
-                let updatePassword = await getUser[0].save();
+                let updatePassword = await userData[0].save();
                 if (updatePassword) {
                     return { result: config.constants.RESPONSE_MSGS.CHANGE_PWD_SUCCESS }
                 }
@@ -123,7 +169,36 @@ let resetPassword = async(req, res, next) => {
             return { error: config.constants.RESPONSE_MSGS.USER_NOT_FOUND }
         }
     } catch (err) {
-        return { error: err }
+        return responseHndlr.getServerErrorMsg();
+    }
+}
+
+let getUserList = async(req, res, next) => {
+    try {
+        let userList = await dao.basicDao.findEntry(User.userModel);
+        return responseHndlr.getSuccessMsg(userList);
+    } catch (err) {
+        return responseHndlr.getServerErrorMsg();
+    }
+}
+
+let getUser = async(req, res, next) => {
+    try {
+        let query = { _id: req.params.id };
+        let userData = await dao.basicDao.findOneEntry(User.userModel, query);
+        return responseHndlr.getSuccessMsg(userData);
+    } catch (err) {
+        return responseHndlr.getServerErrorMsg();
+    }
+}
+
+let getManagerList = async(req, res, next) => {
+    try {
+        let query = { role: 'manager' };
+        let userData = await dao.basicDao.findEntry(User.userModel, query)
+        return responseHndlr.getSuccessMsg(userData);
+    } catch (err) {
+        return responseHndlr.getServerErrorMsg();
     }
 }
 
@@ -131,5 +206,9 @@ module.exports = {
     userSignup,
     login,
     forgotPassword,
-    resetPassword
+    updateProfile,
+    resetPassword,
+    getUserList,
+    getUser,
+    getManagerList
 };

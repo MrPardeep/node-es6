@@ -18,7 +18,7 @@ const mailOptions = (emailerOptions) => {
         subject: 'Forgot password link for youApp',
         html: '<h1>Welcome</h1> ' + emailerOptions.to + ' You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
             'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-            'http://' + emailerOptions.host + '/reset/' + emailerOptions.token + '\n\n' +
+            'http://' + emailerOptions.host + '/reset/' || 'localhost:4200//reset-password' + emailerOptions.token + '\n\n' +
             'If you did not request this, please ignore this email and your password will remain unchanged.\n'
     }
 };

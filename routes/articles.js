@@ -3,9 +3,10 @@
 const express = require('express'),
     router = express.Router();
 
-const articlesController = require('./../controllers/articles-controller');
+const articlesController = require('./../controllers/articles-controller'),
+    middleware = require('./../middlewares');
 
-router.post('', async(req, res) => {
+router.post('', middleware.checkAuth.checkValidToken, async(req, res) => {
     let { title, author, publishedOn, details } = req.body;
 
     try {

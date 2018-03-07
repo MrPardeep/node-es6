@@ -1,8 +1,10 @@
 const STATUS_CODE = {
     'created': 201,
+    'success': 200,
     'unAuthorized': 401,
     'notFound': 204,
-    'error': 500
+    'server_error': 500,
+    'error': 400
 };
 
 const ERROR_MESSAGES = {
@@ -19,10 +21,13 @@ const RESPONSE_MSGS = {
     FIELDS_MISSING: 'Required fields are missing',
     INVALID_EMAIL: 'Email ID you entered is invalid',
     UNAUTHORIZED: 'User is not authorized',
+    TOKEN_EXPIRY: 'Your token has been expired , please login again to continue',
     USER_NOT_FOUND: 'User not found',
     SIGNUP_SUCCESS: 'User sign up successfull',
+    USER_UPDATED: 'User updated successfully.',
     FORGOT_PWD_SUCCESS: 'Please check your email for reset password Link attached.',
-    CHANGE_PWD_SUCCESS: 'Password has been changed successfully !'
+    CHANGE_PWD_SUCCESS: 'Password has been changed successfully !',
+    EXCEPTION_MSG: 'Some exceptions are there'
 }
 
 const SALT_ROUNDS = 5;

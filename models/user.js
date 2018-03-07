@@ -9,8 +9,12 @@ const UserSchema = new Schema({
     password: { type: String, required: true },
     firstname: { type: String, required: false, default: 'user' },
     lastname: { type: String, required: false },
+    name: { type: String, required: false, default: 'user' },
     country: { type: String, required: false, default: 'india' },
     dob: { type: String, required: false },
+    role: { type: String, required: true },
+    phone: { type: Number, required: false },
+    status: { type: Boolean, required: false, default: true },
     resetPasswordToken: { type: String, required: false },
     resetPasswordExpires: { type: Date, required: false }
 });
