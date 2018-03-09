@@ -12,8 +12,8 @@ const ERROR_MESSAGES = {
 }
 
 const EMAIL_INFO = {
-    USERNAME: '----',
-    PASSWORD: '----'
+    USERNAME: 'door.wildnet@gmail.com',
+    PASSWORD: 'wildnet@123'
 }
 
 const RESPONSE_MSGS = {
@@ -32,7 +32,7 @@ const RESPONSE_MSGS = {
 
 const SALT_ROUNDS = 5;
 
-module.exports = {
+export default {
     STATUS_CODE,
     RESPONSE_MSGS,
     ERROR_MESSAGES,

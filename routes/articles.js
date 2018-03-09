@@ -1,10 +1,10 @@
 "use strict";
 
-const express = require('express'),
-    router = express.Router();
+import express from 'express';
+const router = express.Router();
 
-const articlesController = require('./../controllers/articles-controller'),
-    middleware = require('./../middlewares');
+import articlesController from './../controllers/articles-controller';
+import middleware from './../middlewares';
 
 router.post('', middleware.checkAuth.checkValidToken, async(req, res) => {
     let { title, author, publishedOn, details } = req.body;
@@ -19,4 +19,4 @@ router.post('', middleware.checkAuth.checkValidToken, async(req, res) => {
     }
 });
 
-module.exports = router;
+export default router

@@ -1,14 +1,19 @@
 "use strict";
 
-const express = require('express'),
-    mongoose = require('mongoose');
+import express from 'express';
+import mongoose from 'mongoose';
 
-const app = express(),
-    config = require('./config');
+import config from './config';
+const app = express();
 
 mongoose.connect(config.dbManager.DB_CONNECTION_KEY_HRM);
 
-require('./config/express-config')(app);
-require('./routes')(app);
+// require('./config/express-config')(app);
+// require('./routes')(app);
+import expressConfig from './config/express-config';
+const expressConfigInstance = expressConfig(app);
 
-module.exports = app;
+import route from './routes';
+const routeInstance = route(app);
+
+module.exports = app

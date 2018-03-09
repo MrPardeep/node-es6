@@ -1,9 +1,9 @@
 "use strict";
 
-const nodemailer = require('nodemailer'),
-    constants = require('./../../config/constants');
+import nodemailer from 'nodemailer';
+import constants from './../../config/constants';
 
-const transporter = nodemailer.createTransport({
+let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: constants.EMAIL_INFO.USERNAME,
@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const mailOptions = (emailerOptions) => {
+let mailOptions = (emailerOptions) => {
     return {
         from: constants.EMAIL_INFO.USERNAME,
         to: emailerOptions.to,
@@ -33,7 +33,7 @@ let sendEmail = async(emailTo) => {
     }
 }
 
-module.exports = {
+export default {
     sendEmail
 }
 

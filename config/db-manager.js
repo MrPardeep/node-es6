@@ -9,7 +9,7 @@ let connectDB = (env, callback) => {
 
 }
 
-module.exports = {
+export default {
     DB_CONNECTION_KEY,
     DB_CONNECTION_KEY_HRM,
     DB_CLOUD_KEY,

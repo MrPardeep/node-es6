@@ -20,4 +20,6 @@ class prodConfiguration {
     }
 }
 
-module.exports = prodConfiguration;
+export default {
+    prodConfiguration
+}

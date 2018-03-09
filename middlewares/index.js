@@ -2,6 +2,6 @@
 
 import checkAuth from './check-auth';
 
-module.exports = {
+export default {
     checkAuth
 }

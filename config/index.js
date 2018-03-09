@@ -1,13 +1,13 @@
 "use strict";
 
-const config = require('./config'),
-    appUtils = require('./app-utils'),
-    constants = require('./constants'),
-    responseHndlr = require('./resHandler'),
-    expressConfig = require('./express-config'),
-    dbManager = require('./db-manager');
+import config from './config';
+import appUtils from './app-utils';
+import constants from './constants';
+import responseHndlr from './resHandler';
+import expressConfig from './express-config';
+import dbManager from './db-manager';
 
-module.exports = {
+export default {
     config,
     appUtils,
     constants,

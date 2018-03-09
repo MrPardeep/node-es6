@@ -9,4 +9,4 @@ router.post('/image-upload', (req, res) => {
     controller.imageUploading.imageUploading(req, res);
 })
 
-module.exports = router;
+export default router;

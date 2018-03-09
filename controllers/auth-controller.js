@@ -1,16 +1,16 @@
 "use strict";
 
-const express = require('express'),
-    router = express.Router(),
-    Promise = require('bluebird'),
-    crypto = require('crypto'),
-    jwt = require('jsonwebtoken');
+import express from 'express';
+import Promise from 'bluebird';
+import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
+const router = express.Router();
 
-const User = require('./../models'),
-    dao = require('./../dao'),
-    responseHndlr = require('./../config/resHandler'),
-    emailer = require('../client/email/index'),
-    config = require('./../config');
+import User from './../models';
+import dao from './../dao';
+import responseHndlr from './../config/resHandler';
+import emailer from '../client/email/index';
+import config from './../config';
 
 let userSignup = async(req, res) => {
     let keysRequired = ['email', 'password'],
@@ -57,7 +57,7 @@ let login = async(req, res) => {
     if (userData) {
         let passwordCompare = await config.appUtils.passwordCompare(req.password, userData.password)
         if (passwordCompare) {
-            let token = jwt.sign({ email: userData.email, firstname: userData.firstname }, config.config.JWT_SECRET, { expiresIn: '1h' });
+            let token = jwt.sign({ email: userData.email, role: userData.role }, config.config.JWT_SECRET, { expiresIn: '1h' });
             let userDetail = {
                 email: userData.email || null,
                 firstname: userData.firstname || null,
@@ -173,42 +173,10 @@ let resetPassword = async(req, res, next) => {
     }
 }
 
-let getUserList = async(req, res, next) => {
-    try {
-        let userList = await dao.basicDao.findEntry(User.userModel);
-        return responseHndlr.getSuccessMsg(userList);
-    } catch (err) {
-        return responseHndlr.getServerErrorMsg();
-    }
-}
-
-let getUser = async(req, res, next) => {
-    try {
-        let query = { _id: req.params.id };
-        let userData = await dao.basicDao.findOneEntry(User.userModel, query);
-        return responseHndlr.getSuccessMsg(userData);
-    } catch (err) {
-        return responseHndlr.getServerErrorMsg();
-    }
-}
-
-let getManagerList = async(req, res, next) => {
-    try {
-        let query = { role: 'manager' };
-        let userData = await dao.basicDao.findEntry(User.userModel, query)
-        return responseHndlr.getSuccessMsg(userData);
-    } catch (err) {
-        return responseHndlr.getServerErrorMsg();
-    }
-}
-
-module.exports = {
+export default {
     userSignup,
     login,
     forgotPassword,
     updateProfile,
-    resetPassword,
-    getUserList,
-    getUser,
-    getManagerList
+    resetPassword
 };

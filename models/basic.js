@@ -11,6 +11,7 @@ const roleSchema = new Schema({
 
 const departmentSchema = new Schema({
     name: { type: String, required: true, unique: true },
+    code: { type: String },
     key: { type: Number, unique: true }
 });
 

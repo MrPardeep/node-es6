@@ -2,6 +2,6 @@
 
 const JWT_SECRET = 'HelloTesting';
 
-module.exports = {
+export default {
     JWT_SECRET
 }

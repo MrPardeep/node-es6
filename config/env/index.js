@@ -1,7 +1,8 @@
 "use strict";
 
-const appUtils = require('./../app-utils'),
-    prodConfig = require('./prod');
+import appUtils from './../app-utils';
+import prodConfig from './prod';
+import defaultConfig from './default';
 
 const env = () => {
     let Config;
@@ -9,13 +10,13 @@ const env = () => {
     switch (appUtils.getNodeEnv()) {
         case 'dev':
         case 'development':
-            Config = require('./default');
+            Config = defaultConfig
             break;
         case 'production':
-            Config = require('./prod');
+            Config = prodConfig
             break;
         default:
-            Config = require('./default');
+            Config = defaultConfig
             break;
     }
 
@@ -23,6 +24,6 @@ const env = () => {
     return config.getConfigs();
 }
 
-module.exports = {
+export default {
     env
 }

@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 'use strict';
 
+require('babel-register')({
+    presets: ['es2015']
+});
+
 /**
  * Module dependencies.
  */
-/* require('babel-register')({
-    presets: ['es2015', "stage-0"]
-});
-require("babel-polyfill") */
+
 var app = require('../app');
 var debug = require('debug')('myapp:server');
 var http = require('http');

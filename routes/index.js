@@ -1,18 +1,16 @@
 "use strict";
 
-const middleware = require('./../middlewares'),
-    authRoutes = require('./auth'),
-    articlesRoutes = require('./articles'),
-    ProjectRoutes = require('./projects'),
-    basicRoutes = require('./basic'),
-    uploading = require('./uploading');
+import middleware from './../middlewares';
+import authRoutes from './auth';
+import articlesRoutes from './articles';
+import adminRoutes from './admin';
+import uploading from './uploading';
 
 module.exports = (app) => {
     app.use('/auth', authRoutes);
     app.use('/upload', uploading);
     app.use('/articles', articlesRoutes);
-    app.use('/api', basicRoutes);
-    app.use('/admin', middleware.checkAuth.checkValidToken, ProjectRoutes);
+    app.use('/admin', adminRoutes);
 
     /* Used to fetch Device Type */
     app.get('/hello', (req, res) => {

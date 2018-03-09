@@ -1,13 +1,11 @@
 "use strict";
 
-const authController = require('./auth-controller'),
-    basicController = require('./basic-controller'),
-    projectsController = require('./projects-controller'),
-    imageUploading = require('./uploading-controller');
+import authController from './auth-controller';
+import adminController from './admin-controller';
+import imageUploading from './uploading-controller';
 
-module.exports = {
+export default {
     authController,
     imageUploading,
-    projectsController,
-    basicController
+    adminController
 }

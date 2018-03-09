@@ -18,9 +18,14 @@ let getSuccessMsg = (data = {}) => {
     return { status: constants.STATUS_CODE.success, data: data }
 }
 
-module.exports = {
+let getUnauthorizedMsg = (data = {}) => {
+    return { status: constants.STATUS_CODE.unAuthorized, message: constants.RESPONSE_MSGS.TOKEN_EXPIRY }
+}
+
+export default {
     getPropertyMissingMsg,
     getInvalidEmailMsg,
     getServerErrorMsg,
-    getSuccessMsg
+    getSuccessMsg,
+    getUnauthorizedMsg
 }

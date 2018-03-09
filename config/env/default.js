@@ -20,4 +20,6 @@ class defaultConfiguration {
     }
 }
 
-module.exports = defaultConfiguration;
+export default {
+    defaultConfiguration
+}

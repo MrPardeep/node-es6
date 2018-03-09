@@ -1,15 +1,15 @@
 "use strict";
 
-const express = require('express'),
-    bodyParser = require('body-parser'),
-    multer = require('multer'),
-    device = require('express-device'),
-    swaggerUi = require('swagger-ui-express'),
-    swaggerDocument = require('./swagger.json'),
-    logger = require('morgan');
+import express from 'express';
+import bodyParser from 'body-parser';
+import multer from 'multer';
+import device from 'express-device';
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocument from './swagger.json';
+import logger from 'morgan';
 
-const app = express(),
-    appUtils = require('./app-utils');
+import appUtils from './app-utils';
+const app = express();
 
 module.exports = (app) => {
     app.use(logger('dev'));

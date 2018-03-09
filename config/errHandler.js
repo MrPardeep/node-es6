@@ -1,9 +1,9 @@
 "use strict";
 
 let errorMsg = (error) => {
-    return error;
+    return { error: error };
 }
 
-module.exports = {
+export default {
     errorMsg
 }

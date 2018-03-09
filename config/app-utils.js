@@ -1,8 +1,8 @@
 "use strict";
 
-const bcrypt = require('bcrypt'),
-    constants = require('./constants'),
-    atob = require('atob');
+import bcrypt from 'bcrypt';
+import constants from './constants';
+import atob from 'atob';
 
 /* To check whthere request object has required filed or not */
 let hasEmptyProperties = (obj, props) => {
@@ -68,7 +68,7 @@ let getNodeEnv = () => {
     return process.env.NODE_ENV;
 }
 
-module.exports = {
+export default {
     hasEmptyProperties,
     trimValues,
     isValidEmail,
